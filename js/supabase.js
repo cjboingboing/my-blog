@@ -182,6 +182,29 @@ const db = {
   },
 
   // ════════════════════════════════════════════
+  // STORAGE
+  // ════════════════════════════════════════════
+
+  async uploadPhoto(file, userId) {
+    const ext  = file.name.split('.').pop().toLowerCase() || 'jpg';
+    const path = `${userId}/${Date.now()}.${ext}`;
+    const res  = await fetch(`${SUPABASE_URL}/storage/v1/object/post-images/${path}`, {
+      method:  'POST',
+      headers: {
+        'apikey':        SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${db._getToken() || SUPABASE_ANON_KEY}`,
+        'Content-Type':  file.type || 'image/jpeg',
+      },
+      body: file,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Upload failed');
+    }
+    return `${SUPABASE_URL}/storage/v1/object/public/post-images/${path}`;
+  },
+
+  // ════════════════════════════════════════════
   // HITS
   // ════════════════════════════════════════════
 

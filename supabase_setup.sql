@@ -114,3 +114,16 @@ create policy "Anyone can add to guestbook" on guestbook for insert with check (
 create policy "Admin can delete guestbook"  on guestbook for delete using (
   exists (select 1 from profiles where id = auth.uid() and role = 'admin')
 );
+
+-- ── STORAGE POLICIES (run after creating the post-images bucket) ──
+create policy "Authenticated users can upload images"
+  on storage.objects for insert
+  with check (bucket_id = 'post-images' and auth.role() = 'authenticated');
+
+create policy "Public can view images"
+  on storage.objects for select
+  using (bucket_id = 'post-images');
+
+create policy "Users can delete their own images"
+  on storage.objects for delete
+  using (bucket_id = 'post-images' and auth.uid()::text = (storage.foldername(name))[1]);

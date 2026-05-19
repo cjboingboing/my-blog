@@ -387,17 +387,24 @@ function triggerPhoto() { document.getElementById('toolbar-photo-input').click()
 function handleToolbarPhoto(e) { handleFiles(Array.from(e.target.files)); e.target.value = ''; }
 function handlePhotoUpload(e) { handleFiles(Array.from(e.target.files)); e.target.value = ''; }
 
-function handleFiles(files) {
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const ph = { id: 'ph_' + Date.now() + '_' + Math.random().toString(36).slice(2), name: file.name, dataUrl: ev.target.result };
+async function handleFiles(files) {
+  if (!currentUser) { showToast('⚠️ Sign in to upload photos.'); return; }
+  for (const file of files) {
+    const ed = document.getElementById('editor-body');
+    const placeholder = document.createElement('p');
+    placeholder.innerHTML = '<em style="color:#888">📷 Uploading...</em>';
+    ed.appendChild(placeholder);
+    try {
+      const url = await db.uploadPhoto(file, currentUser.id);
+      const ph  = { id: 'ph_' + Date.now() + '_' + Math.random().toString(36).slice(2), name: file.name, dataUrl: url };
       uploadedPhotos.push(ph);
       addThumb(ph);
-      insertPhotoAtCursor(ph);
-    };
-    reader.readAsDataURL(file);
-  });
+      placeholder.replaceWith(createPhotoBlock(ph, 50));
+    } catch (e) {
+      placeholder.remove();
+      showToast('⚠️ Upload failed: ' + e.message);
+    }
+  }
 }
 
 function addThumb(ph) {
