@@ -26,11 +26,15 @@ const COLORS = ['#4285F4','#EA4335','#FBBC05','#34A853','#4285F4','#EA4335','#9c
   renderCalendar(now);
 
   // Hit counter
-  let hits = parseInt(localStorage.getItem('calspace_hits') || '1337') + 1;
-  localStorage.setItem('calspace_hits', hits);
-  const padded = String(hits).padStart(6, '0');
-  document.getElementById('hit-digs').textContent     = padded;
-  document.getElementById('hit-marquee').textContent  = padded;
+  try {
+    const hits = await db.incrementHits();
+    const padded = String(hits).padStart(6, '0');
+    document.getElementById('hit-digs').textContent    = padded;
+    document.getElementById('hit-marquee').textContent = padded;
+  } catch (e) {
+    document.getElementById('hit-digs').textContent    = '001337';
+    document.getElementById('hit-marquee').textContent = '001337';
+  }
 
   // Init auth (checks for existing session)
   await initAuth();
@@ -39,6 +43,7 @@ const COLORS = ['#4285F4','#EA4335','#FBBC05','#34A853','#4285F4','#EA4335','#9c
   await renderPosts();
   await loadStats();
   if (currentProfile) await loadMembers();
+  await loadGuestbook();
 })();
 
 // ════════════════════════════════════════════
@@ -143,11 +148,7 @@ async function renderPosts() {
       // Logged-in users see all published posts
       posts = await db.getPublishedPosts();
     } else {
-      // Guests: only see admin/owner posts
-      // We fetch all published and filter to admin user
-      // (You can also hardcode your user_id here for performance)
-      const all = await db.getPublishedPosts();
-      posts = all.filter(p => p.profiles?.username === 'cal' || p.user_id === ADMIN_USER_ID);
+      posts = await db.getPublishedPosts();
     }
 
     if (!posts || !posts.length) {
@@ -660,6 +661,65 @@ async function adminDeletePost(id) {
     loadAdminPanel();
     renderPosts();
   } catch (e) { showToast('⚠️ ' + e.message); }
+}
+
+// ════════════════════════════════════════════
+// GUESTBOOK
+// ════════════════════════════════════════════
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+async function loadGuestbook() {
+  const el = document.getElementById('guestbook-entries');
+  if (!el) return;
+  try {
+    const entries = await db.getGuestbook();
+    if (!entries || !entries.length) {
+      el.innerHTML = '<div style="color:#999;font-size:10px;">No entries yet — be the first!</div>';
+      return;
+    }
+    el.innerHTML = entries.map(e => `
+      <div style="padding:4px 0;border-bottom:1px dotted #ddd;position:relative;padding-right:${isAdmin ? '16px' : '0'}">
+        <strong>${escapeHtml(e.name)}</strong>: ${escapeHtml(e.message)}
+        <br><span style="font-size:9px;color:#aaa">${new Date(e.created_at).toLocaleDateString('en-AU')}</span>
+        ${isAdmin ? `<button onclick="deleteGuestbookEntry('${e.id}')" style="position:absolute;right:0;top:4px;background:none;border:none;cursor:pointer;color:#c00;font-size:10px;padding:0;">✕</button>` : ''}
+      </div>`
+    ).join('');
+  } catch (e) {
+    el.innerHTML = '<div style="color:#999;font-size:10px;">Guestbook unavailable</div>';
+  }
+}
+
+async function submitGuestbook() {
+  const name    = document.getElementById('gb-name').value.trim();
+  const message = document.getElementById('gb-message').value.trim();
+  if (!name || !message) { showToast('⚠️ Name and message required!'); return; }
+  try {
+    await db.addGuestbookEntry(name, message);
+    document.getElementById('gb-name').value    = '';
+    document.getElementById('gb-message').value = '';
+    showToast('✨ Guestbook signed!');
+    await loadGuestbook();
+  } catch (e) {
+    showToast('⚠️ ' + e.message);
+  }
+}
+
+async function deleteGuestbookEntry(id) {
+  if (!confirm('Delete this entry?')) return;
+  try {
+    await db.deleteGuestbookEntry(id);
+    showToast('🗑️ Entry deleted.');
+    await loadGuestbook();
+  } catch (e) {
+    showToast('⚠️ ' + e.message);
+  }
 }
 
 // ════════════════════════════════════════════

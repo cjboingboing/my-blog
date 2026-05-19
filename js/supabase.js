@@ -180,4 +180,44 @@ const db = {
       members: Array.isArray(membersRes) ? membersRes.length : 0,
     };
   },
+
+  // ════════════════════════════════════════════
+  // HITS
+  // ════════════════════════════════════════════
+
+  async incrementHits() {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/increment_hits`, {
+      method: 'POST',
+      headers: {
+        'apikey':        SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type':  'application/json',
+      },
+      body: JSON.stringify({}),
+    });
+    if (!res.ok) throw new Error('Hit counter failed');
+    return res.json();
+  },
+
+  // ════════════════════════════════════════════
+  // GUESTBOOK
+  // ════════════════════════════════════════════
+
+  async getGuestbook() {
+    return db._request('guestbook?select=*&order=created_at.desc&limit=50');
+  },
+
+  async addGuestbookEntry(name, message) {
+    return db._request('guestbook', {
+      method: 'POST',
+      body: JSON.stringify({ name, message }),
+    });
+  },
+
+  async deleteGuestbookEntry(id) {
+    return db._request(`guestbook?id=eq.${id}`, {
+      method: 'DELETE',
+      prefer: 'return=minimal',
+    });
+  },
 };

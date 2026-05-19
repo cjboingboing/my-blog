@@ -74,3 +74,43 @@ $$ language plpgsql;
 create trigger posts_updated_at
   before update on posts
   for each row execute function update_updated_at();
+
+-- ═══════════════════════════════════════════
+-- NEW ADDITIONS — paste these into SQL Editor
+-- ═══════════════════════════════════════════
+
+-- ── HITS TABLE (shared visitor counter) ──
+create table if not exists hits (
+  id    int primary key default 1,
+  count int default 0,
+  constraint single_row check (id = 1)
+);
+insert into hits (id, count) values (1, 0) on conflict do nothing;
+alter table hits enable row level security;
+create policy "Anyone can read hits" on hits for select using (true);
+
+create or replace function increment_hits()
+returns int as $$
+declare
+  new_count int;
+begin
+  update hits set count = count + 1 where id = 1 returning count into new_count;
+  return new_count;
+end;
+$$ language plpgsql security definer;
+
+grant execute on function increment_hits() to anon;
+
+-- ── GUESTBOOK TABLE ──
+create table if not exists guestbook (
+  id         uuid primary key default gen_random_uuid(),
+  name       text not null check (char_length(name) <= 30),
+  message    text not null check (char_length(message) <= 200),
+  created_at timestamptz default now()
+);
+alter table guestbook enable row level security;
+create policy "Anyone can read guestbook"   on guestbook for select using (true);
+create policy "Anyone can add to guestbook" on guestbook for insert with check (true);
+create policy "Admin can delete guestbook"  on guestbook for delete using (
+  exists (select 1 from profiles where id = auth.uid() and role = 'admin')
+);
