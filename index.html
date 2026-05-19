@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CalSpace — Est. 1999</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=VT323&family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ═══ MARQUEE ═══ -->
+  <div class="marquee-bar">
+    <div class="marquee-inner">
+      ★ WELCOME TO CALSPACE ★ &nbsp;&nbsp;&nbsp;
+      Best viewed in Internet Explorer 6.0 at 800×600 &nbsp;&nbsp;&nbsp;
+      ★ SIGN MY GUESTBOOK ★ &nbsp;&nbsp;&nbsp;
+      You are visitor #<span id="hit-marquee">001337</span> &nbsp;&nbsp;&nbsp;
+      ★ UNDER CONSTRUCTION ★ &nbsp;&nbsp;&nbsp;
+      Last updated: <span id="mq-date"></span> &nbsp;&nbsp;&nbsp;
+      ✨ DON'T STEAL MY GRAPHICS ✨ &nbsp;&nbsp;&nbsp;
+    </div>
+  </div>
+
+  <!-- ═══ TOPBAR ═══ -->
+  <div class="topbar">
+    <div class="topbar-logo" id="logo" onclick="handleLogoClick()">
+      <span class="c1">C</span><span class="c2">a</span><span class="c3">l</span><span class="c4">S</span><span class="c5">p</span><span class="c6">a</span><span class="c7">c</span><span class="c1">e</span>
+    </div>
+    <div class="topbar-nav">
+      <button class="nav-btn" onclick="showScreen('home')">🏠 Home</button>
+      <button class="nav-btn" id="nav-search" onclick="showScreen('search')" style="display:none">🔍 Search</button>
+      <button class="nav-btn" id="nav-profile" onclick="showMyProfile()" style="display:none">👤 My Space</button>
+      <button class="nav-btn" id="nav-admin" onclick="showScreen('admin')" style="display:none">⚙️ Admin</button>
+      <button class="nav-btn nav-btn-new" id="nav-login" onclick="showScreen('auth')">🔑 Sign In</button>
+      <button class="nav-btn nav-btn-logout" id="nav-logout" onclick="logout()" style="display:none">🚪 Logout</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SCREEN: HOME
+  ═══════════════════════════════════════ -->
+  <div id="screen-home" class="screen active">
+
+    <!-- Hero -->
+    <div class="hero-section">
+      <div class="big-logo" id="big-logo"></div>
+      <div class="tagline">~ Your Personal Corner of the Web ~<br><span>Est. 1999</span></div>
+      <div class="hit-counter">
+        <span class="lbl">VISITORS:</span>
+        <span class="digs" id="hit-digs">001337</span>
+      </div>
+      <div class="construction-bar"></div>
+    </div>
+
+    <!-- 3-col layout -->
+    <div class="home-layout">
+
+      <!-- LEFT SIDEBAR -->
+      <div class="sidebar-left">
+        <div class="retro-widget panel">
+          <div class="w-titlebar">📁 NAVIGATE
+            <div class="win-btns"><div class="win-btn">_</div><div class="win-btn">□</div><div class="win-btn">✕</div></div>
+          </div>
+          <div class="w-body">
+            <a onclick="showScreen('home')">🏠 Home</a>
+            <a id="nav-link-search" onclick="showScreen('search')" style="display:none">🔍 Search Posts</a>
+            <a id="nav-link-profile" onclick="showMyProfile()" style="display:none">👤 My Space</a>
+            <a id="nav-link-write" onclick="showScreen('editor')" style="display:none">✏️ Write Post</a>
+            <a onclick="showScreen('auth')">🔑 Sign In / Join</a>
+          </div>
+        </div>
+
+        <div class="retro-widget panel">
+          <div class="w-titlebar">🏷️ TAG CLOUD
+            <div class="win-btns"><div class="win-btn">✕</div></div>
+          </div>
+          <div class="w-body tag-cloud-body" id="tag-cloud">
+            <a>life</a> <a>travel</a> <a>food</a> <a>thoughts</a> <a>photos</a> <a>random</a> <a>music</a> <a>friends</a>
+          </div>
+        </div>
+
+        <div class="retro-widget panel">
+          <div class="w-titlebar">📅 CALENDAR
+            <div class="win-btns"><div class="win-btn">✕</div></div>
+          </div>
+          <div class="w-body" id="cal" style="font-family:var(--mono);font-size:12px;text-align:center"></div>
+        </div>
+
+        <!-- Members list — only shown when logged in -->
+        <div class="retro-widget panel" id="members-widget" style="display:none">
+          <div class="w-titlebar">👥 MEMBERS
+            <div class="win-btns"><div class="win-btn">✕</div></div>
+          </div>
+          <div class="w-body" id="members-list" style="font-family:var(--mono);font-size:12px;line-height:2;"></div>
+        </div>
+      </div>
+
+      <!-- MAIN CONTENT -->
+      <div>
+        <div class="posts-header">📝 CAL'S LATEST ENTRIES</div>
+        <div id="posts-list"></div>
+      </div>
+
+      <!-- RIGHT SIDEBAR -->
+      <div class="sidebar-right">
+        <div class="retro-banner" id="hero-cta" onclick="showScreen('auth')">
+          ✨ JOIN CALSPACE ✨<br>Sign up free!
+        </div>
+
+        <!-- Shown when logged in -->
+        <div id="write-widget" style="display:none">
+          <div class="retro-banner" onclick="showScreen('editor')" style="background:linear-gradient(135deg,#4285F4,#34A853,#4285F4)">
+            ✏️ WRITE POST<br>Share your story!
+          </div>
+        </div>
+
+        <div class="retro-widget panel" id="weather-widget">
+          <div class="w-titlebar">⛅ WEATHER
+            <div class="win-btns"><div class="win-btn">✕</div></div>
+          </div>
+          <div class="w-body" id="weather-body" style="font-family:var(--mono);font-size:11px;text-align:center;line-height:1.8;">
+            <div style="color:#888;font-size:10px;">Loading...</div>
+          </div>
+        </div>
+
+        <div class="retro-widget panel">
+          <div class="w-titlebar">😊 MOOD
+            <div class="win-btns"><div class="win-btn">✕</div></div>
+          </div>
+          <div class="w-body" style="text-align:center;font-family:var(--mono);font-size:13px;">
+            <div style="font-size:36px;margin:4px 0">😊</div>
+            Currently: Vibing<br>
+            <span style="font-size:11px;color:#666">Blogging since 1999</span>
+          </div>
+        </div>
+
+        <div class="retro-widget panel">
+          <div class="w-titlebar">📊 STATS
+            <div class="win-btns"><div class="win-btn">✕</div></div>
+          </div>
+          <div class="w-body" style="font-family:var(--mono);font-size:12px;line-height:2;">
+            Posts: <strong id="stat-posts">0</strong><br>
+            Members: <strong id="stat-members">0</strong><br>
+            Est: 1999<br>
+          </div>
+        </div>
+
+        <div class="retro-widget panel">
+          <div class="w-titlebar">💌 GUESTBOOK
+            <div class="win-btns"><div class="win-btn">✕</div></div>
+          </div>
+          <div class="w-body" style="font-family:var(--mono);font-size:11px;line-height:1.8;color:#555;">
+            "gr8 blog!!"<br>— xX_visitor_Xx<br><br>
+            "LOL so tru"<br>— coolgurl2k<br><br>
+            <a style="font-size:10px;">+ Sign Guestbook</a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end home-layout -->
+
+    <div class="retro-footer">
+      <div class="footer-links">
+        <a onclick="showScreen('home')">Home</a>
+        <a onclick="showScreen('auth')">Join</a>
+        <a onclick="showScreen('search')">Search</a>
+      </div>
+      <div>© 1999–<span id="foot-year"></span> CalSpace — All Rights Reserved</div>
+      <div class="best-viewed">Best viewed in Internet Explorer 5.5+ · Netscape 4+ · 800×600 resolution</div>
+      <div style="margin-top:6px;font-size:18px;">⭐ ✨ 🌟 ✨ ⭐</div>
+    </div>
+
+  </div><!-- end screen-home -->
+
+
+  <!-- ═══════════════════════════════════════
+       SCREEN: AUTH (Login / Signup)
+  ═══════════════════════════════════════ -->
+  <div id="screen-auth" class="screen">
+    <div style="padding:40px 20px;max-width:480px;margin:0 auto;">
+
+      <div class="editor-window">
+        <div class="editor-tbar">
+          <span id="auth-tbar-title">🔑 SIGN IN — CALSPACE</span>
+          <div class="win-btns">
+            <div class="win-btn" onclick="showScreen('home')">✕</div>
+          </div>
+        </div>
+
+        <!-- Tab switcher -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</button>
+          <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Create Account</button>
+        </div>
+
+        <div style="padding:24px;">
+
+          <!-- LOGIN FORM -->
+          <div id="auth-login">
+            <span class="e-label">EMAIL:</span>
+            <input type="email" class="e-input" id="login-email" placeholder="your@email.com">
+            <span class="e-label" style="margin-top:10px;">PASSWORD:</span>
+            <input type="password" class="e-input" id="login-password" placeholder="••••••••">
+            <button class="btn-pub" style="margin-top:16px;" onclick="login()">🔑 SIGN IN!</button>
+            <div class="auth-error" id="login-error"></div>
+          </div>
+
+          <!-- SIGNUP FORM -->
+          <div id="auth-signup" style="display:none">
+            <span class="e-label">USERNAME:</span>
+            <input type="text" class="e-input" id="signup-username" placeholder="cooluser99" maxlength="20">
+            <span class="e-label" style="margin-top:10px;">EMAIL:</span>
+            <input type="email" class="e-input" id="signup-email" placeholder="your@email.com">
+            <span class="e-label" style="margin-top:10px;">PASSWORD:</span>
+            <input type="password" class="e-input" id="signup-password" placeholder="min 6 characters">
+            <button class="btn-pub" style="margin-top:16px;" onclick="signup()">✨ JOIN CALSPACE!</button>
+            <div class="auth-error" id="signup-error"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div><!-- end screen-auth -->
+
+
+  <!-- ═══════════════════════════════════════
+       SCREEN: EDITOR
+  ═══════════════════════════════════════ -->
+  <div id="screen-editor" class="screen">
+    <div style="padding:14px 12px;">
+      <div class="editor-window">
+        <div class="editor-tbar">
+          <span id="ed-tbar-title">✏️ NEW BLOG ENTRY — NOTEPAD.EXE</span>
+          <div class="win-btns">
+            <div class="win-btn" onclick="showScreen('home')">_</div>
+            <div class="win-btn">□</div>
+            <div class="win-btn" onclick="discardPost()">✕</div>
+          </div>
+        </div>
+        <div class="editor-inner">
+
+          <!-- Main writing area -->
+          <div class="editor-main">
+            <span class="e-label">POST TITLE:</span>
+            <textarea id="post-title-input" class="e-title" placeholder="Type your title here..." rows="1" oninput="autoResizeTitle(this)"></textarea>
+
+            <div class="toolbar">
+              <button class="tb" onclick="fmt('bold')"><strong>B</strong></button>
+              <button class="tb" onclick="fmt('italic')"><em>I</em></button>
+              <button class="tb" onclick="fmt('underline')"><u>U</u></button>
+              <div class="tb-sep"></div>
+              <button class="tb" onclick="insertHeading(1)">H1</button>
+              <button class="tb" onclick="insertHeading(2)">H2</button>
+              <button class="tb" onclick="insertHeading(3)">H3</button>
+              <div class="tb-sep"></div>
+              <button class="tb" onclick="fmt('insertUnorderedList')">• List</button>
+              <button class="tb" onclick="insertBlockquote()">❝ Quote</button>
+              <div class="tb-sep"></div>
+              <button class="tb" onclick="triggerPhoto()">📷 Photo</button>
+            </div>
+
+            <div
+              id="editor-body"
+              class="e-body"
+              contenteditable="true"
+              data-placeholder="Start typing your blog entry... don't forget emoticons!! :) ;) :D"
+            ></div>
+          </div>
+
+          <!-- Editor sidebar -->
+          <div class="e-side">
+            <div>
+              <div class="s-title">📷 PHOTOS</div>
+              <div class="upload-zone" id="upload-zone">
+                <input type="file" accept="image/*" multiple onchange="handlePhotoUpload(event)">
+                <span class="ui">📁</span>
+                <p>Click to browse<br>or drop here</p>
+              </div>
+              <div class="photo-thumbs" id="photo-thumbs"></div>
+            </div>
+
+            <div>
+              <div class="s-title">🏷️ TAGS</div>
+              <div class="tag-wrap">
+                <input type="text" class="tag-inp" id="tag-input" placeholder="tag..." onkeydown="tagKeydown(event)">
+                <button class="tag-add" onclick="addTag()">+</button>
+              </div>
+              <div class="tags-list" id="tags-list"></div>
+            </div>
+
+            <div class="s-actions">
+              <div class="s-title">💾 ACTIONS</div>
+              <button class="btn-pub" onclick="publishPost()">🚀 PUBLISH!</button>
+              <button class="btn-save" onclick="saveDraft()">💾 Save Draft</button>
+              <button class="btn-disc" onclick="discardPost()">🗑️ Discard</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div><!-- end screen-editor -->
+
+
+  <!-- ═══════════════════════════════════════
+       SCREEN: POST VIEW
+  ═══════════════════════════════════════ -->
+  <div id="screen-post" class="screen">
+    <div style="padding:14px 12px;">
+      <div class="pv-window">
+        <div class="pv-tbar">
+          <span id="pv-tbar">📄 POST</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="pv-back" id="pv-back-btn" onclick="goBackFromPost()">← BACK</button>
+            <div class="win-btns">
+              <div class="win-btn">_</div><div class="win-btn">□</div>
+              <div class="win-btn" onclick="showScreen('home')">✕</div>
+            </div>
+          </div>
+        </div>
+        <div class="pv-inner">
+          <div class="pv-meta">
+            <span id="pv-author"></span>
+            <span id="pv-date"></span>
+            <span id="pv-tags"></span>
+          </div>
+          <div id="pv-title"></div>
+          <div class="pv-body clearfix" id="pv-body"></div>
+          <!-- Edit button — only shown to post owner or admin -->
+          <div id="pv-edit-bar" style="display:none;margin-top:24px;border-top:2px dashed #7a9abf;padding-top:16px;">
+            <button class="btn-save" onclick="editCurrentPost()">✏️ Edit This Post</button>
+            <button class="btn-disc" onclick="deleteCurrentPost()" style="margin-left:8px;">🗑️ Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- end screen-post -->
+
+
+  <!-- ═══════════════════════════════════════
+       SCREEN: USER PROFILE
+  ═══════════════════════════════════════ -->
+  <div id="screen-profile" class="screen">
+    <div style="padding:14px 12px;">
+      <div class="pv-window">
+        <div class="pv-tbar">
+          <span id="profile-tbar">👤 PROFILE</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="pv-back" onclick="showScreen('home')">← BACK</button>
+            <div class="win-btns">
+              <div class="win-btn">_</div><div class="win-btn">□</div>
+              <div class="win-btn" onclick="showScreen('home')">✕</div>
+            </div>
+          </div>
+        </div>
+        <div class="pv-inner">
+
+          <!-- Profile header -->
+          <div class="profile-header">
+            <div class="profile-avatar" id="profile-avatar">😎</div>
+            <div class="profile-info">
+              <div class="profile-username" id="profile-username"></div>
+              <div class="profile-bio" id="profile-bio"></div>
+              <div class="profile-joined" id="profile-joined"></div>
+            </div>
+          </div>
+
+          <div class="posts-header" style="margin-top:16px;" id="profile-posts-header">📝 POSTS</div>
+          <div id="profile-posts-list"></div>
+
+        </div>
+      </div>
+    </div>
+  </div><!-- end screen-profile -->
+
+
+  <!-- ═══════════════════════════════════════
+       SCREEN: SEARCH
+  ═══════════════════════════════════════ -->
+  <div id="screen-search" class="screen">
+    <div style="padding:14px 12px;">
+      <div class="editor-window">
+        <div class="editor-tbar">
+          <span>🔍 SEARCH CALSPACE</span>
+          <div class="win-btns">
+            <div class="win-btn" onclick="showScreen('home')">✕</div>
+          </div>
+        </div>
+        <div style="padding:20px;">
+          <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <input type="text" class="e-input" id="search-input" placeholder="Search posts, tags, users..." style="flex:1" onkeydown="searchKeydown(event)">
+            <button class="btn-pub" style="width:auto;padding:8px 16px;" onclick="doSearch()">🔍 GO!</button>
+          </div>
+          <div id="search-results"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- end screen-search -->
+
+
+  <!-- ═══════════════════════════════════════
+       SCREEN: ADMIN
+  ═══════════════════════════════════════ -->
+  <div id="screen-admin" class="screen">
+    <div style="padding:14px 12px;">
+      <div class="editor-window">
+        <div class="editor-tbar">
+          <span>⚙️ ADMIN PANEL — CALSPACE</span>
+          <div class="win-btns">
+            <div class="win-btn" onclick="showScreen('home')">✕</div>
+          </div>
+        </div>
+        <div style="padding:20px;">
+
+          <div class="posts-header">📋 PENDING APPROVAL</div>
+          <div id="admin-pending"></div>
+
+          <div class="posts-header" style="margin-top:20px;">👥 ALL MEMBERS</div>
+          <div id="admin-members"></div>
+
+          <div class="posts-header" style="margin-top:20px;">📝 ALL POSTS</div>
+          <div id="admin-posts"></div>
+
+        </div>
+      </div>
+    </div>
+  </div><!-- end screen-admin -->
+
+
+  <!-- ═══ TOAST ═══ -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ═══ ADMIN SECRET LOGIN ═══ -->
+  <div id="admin-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;display:none;align-items:center;justify-content:center;">
+    <div class="editor-window" style="max-width:340px;width:90%;">
+      <div class="editor-tbar">
+        <span>🔐 ADMIN ACCESS</span>
+        <div class="win-btns"><div class="win-btn" onclick="closeAdminModal()">✕</div></div>
+      </div>
+      <div style="padding:20px;">
+        <span class="e-label">ADMIN PASSWORD:</span>
+        <input type="password" class="e-input" id="admin-password-input" placeholder="••••••••" onkeydown="adminKeydown(event)">
+        <button class="btn-pub" style="margin-top:12px;" onclick="submitAdminLogin()">🔐 ENTER</button>
+        <div class="auth-error" id="admin-error"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden file input -->
+  <input type="file" accept="image/*" multiple id="toolbar-photo-input" style="display:none" onchange="handleToolbarPhoto(event)">
+
+  <!-- ═══ SCRIPTS ═══ -->
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- ═══ WEATHER WIDGET ═══ -->
+  <script>
+    // Open-Meteo API — free, no key needed
+    // Change lat/lon to your location
+    const WEATHER_LAT = -37.8136;  // Melbourne
+    const WEATHER_LON = 144.9631;
+
+    const WMO_CODES = {
+      0:  ['☀️', 'Clear'],
+      1:  ['🌤️', 'Mostly Clear'],
+      2:  ['⛅', 'Partly Cloudy'],
+      3:  ['☁️', 'Overcast'],
+      45: ['🌫️', 'Foggy'],
+      48: ['🌫️', 'Icy Fog'],
+      51: ['🌦️', 'Light Drizzle'],
+      53: ['🌦️', 'Drizzle'],
+      61: ['🌧️', 'Light Rain'],
+      63: ['🌧️', 'Rain'],
+      65: ['🌧️', 'Heavy Rain'],
+      71: ['🌨️', 'Light Snow'],
+      73: ['🌨️', 'Snow'],
+      80: ['🌦️', 'Showers'],
+      81: ['🌧️', 'Heavy Showers'],
+      95: ['⛈️', 'Thunderstorm'],
+    };
+
+    const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    async function loadWeather() {
+      const el = document.getElementById('weather-body');
+      if (!el) return;
+
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast`
+          + `?latitude=${WEATHER_LAT}&longitude=${WEATHER_LON}`
+          + `&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode`
+          + `&current_weather=true`
+          + `&timezone=Australia%2FMelbourne`
+          + `&forecast_days=4`;
+
+        const res  = await fetch(url);
+        const data = await res.json();
+        const d    = data.daily;
+        const curr = data.current_weather;
+
+        // Current conditions
+        const [currIcon, currDesc] = WMO_CODES[curr.weathercode] || ['🌡️', 'Unknown'];
+
+        // Build 4-day forecast rows
+        let forecastRows = '';
+        for (let i = 0; i < 4; i++) {
+          const date     = new Date(d.time[i]);
+          const dayName  = i === 0 ? 'Today' : DAYS[date.getDay()];
+          const [ico]    = WMO_CODES[d.weathercode[i]] || ['🌡️'];
+          const hi       = Math.round(d.temperature_2m_max[i]);
+          const lo       = Math.round(d.temperature_2m_min[i]);
+          const rain     = d.precipitation_probability_max[i];
+
+          forecastRows += `
+            <div style="display:grid;grid-template-columns:28px 1fr auto;gap:2px;align-items:center;
+                        padding:3px 0;border-bottom:1px dotted #ccc;text-align:left;">
+              <span>${ico}</span>
+              <span style="font-size:10px;">${dayName}${rain > 30 ? ' 💧' + rain + '%' : ''}</span>
+              <span style="font-size:10px;color:#333;">${lo}°–${hi}°</span>
+            </div>`;
+        }
+
+        el.innerHTML = `
+          <div style="font-size:28px;margin:4px 0">${currIcon}</div>
+          <div style="font-size:13px;font-weight:bold;">${Math.round(curr.temperature)}°C</div>
+          <div style="font-size:10px;color:#555;margin-bottom:8px;">${currDesc}</div>
+          <div style="border-top:2px solid #7a9abf;padding-top:6px;margin-top:4px;">
+            ${forecastRows}
+          </div>
+          <div style="font-size:9px;color:#aaa;margin-top:6px;">via open-meteo.com</div>
+        `;
+      } catch (e) {
+        document.getElementById('weather-body').innerHTML =
+          '<div style="color:#888;font-size:10px;">Weather unavailable 😔</div>';
+      }
+    }
+
+    // Load on page ready
+    document.addEventListener('DOMContentLoaded', loadWeather);
+  </script>
+
+</body>
+</html>
