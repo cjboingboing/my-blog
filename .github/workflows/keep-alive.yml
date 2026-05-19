@@ -1,0 +1,19 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    - cron: '0 12 */3 * *'  # every 3 days at noon UTC
+  workflow_dispatch:         # allow manual trigger from GitHub
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://thwhgwgrchpzdknwjblg.supabase.co/rest/v1/profiles?select=id&limit=1" \
+            -H "apikey: sb_publishable_399M4c7UcSh7qdwV1Qg8iQ_pZSEEgKm" \
+            -H "Authorization: Bearer sb_publishable_399M4c7UcSh7qdwV1Qg8iQ_pZSEEgKm")
+          echo "Supabase responded with HTTP $STATUS"
+          [ "$STATUS" = "200" ] && echo "OK" || echo "Check your Supabase project"
